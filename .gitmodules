@@ -1,0 +1,6 @@
+[submodule "xv6-riscv"]
+	path = xv6-riscv
+	url = git@github.com:tokyo4j/xv6-riscv.git
+[submodule "qemu"]
+	path = qemu
+	url = git@github.com:tokyo4j/qemu.git

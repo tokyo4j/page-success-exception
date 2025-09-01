@@ -6,8 +6,9 @@
 ## Setup
 
 ```sh
-git clone https://github.com/tokyo4j/qemu.git -b page-success-exception
-git clone https://github.com/tokyo4j/xv6-riscv.git -b page-success-exception
+git clone https://github.com/tokyo4j/page-success-exception
+cd page-success-exception
+git submodule update --init
 just xv6
 just qemu-setup
 just qemu
