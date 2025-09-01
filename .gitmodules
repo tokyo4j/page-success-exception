@@ -4,3 +4,12 @@
 [submodule "qemu"]
 	path = qemu
 	url = git@github.com:tokyo4j/qemu.git
+[submodule "opensbi"]
+	path = opensbi
+	url = git@github.com:tokyo4j/opensbi.git
+[submodule "busybox"]
+	path = busybox
+	url = git@github.com:tokyo4j/busybox.git
+[submodule "linux"]
+	path = linux
+	url = git@github.com:tokyo4j/linux.git
