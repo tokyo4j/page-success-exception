@@ -5,7 +5,7 @@ xv6:
 [working-directory: 'qemu']
 qemu-setup:
   mkdir -p build
-  cd build; CC=clang ../configure --target-list="riscv64-softmmu" --disable-fuse --disable-user --enable-debug
+  cd build; CC=clang ../configure --target-list="riscv64-softmmu" --disable-fuse --disable-user --disable-curl --enable-debug
 
 [working-directory: 'qemu']
 qemu:
