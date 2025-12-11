@@ -13,3 +13,6 @@
 [submodule "linux"]
 	path = linux
 	url = git@github.com:tokyo4j/linux.git
+[submodule "xvisor"]
+	path = xvisor
+	url = git@github.com:tokyo4j/xvisor.git

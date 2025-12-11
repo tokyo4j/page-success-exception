@@ -28,6 +28,17 @@ busybox $CROSS_COMPILE='riscv64-linux-gnu-' $ARCH='riscv':
   #compiledb make -j16 install
   make -j16 install
 
+[working-directory: 'xvisor']
+xvisor-setup $CROSS_COMPILE='riscv64-linux-gnu-' $ARCH='riscv':
+  make O=./build generic-64b-defconfig
+
+[working-directory: 'xvisor']
+xvisor $CROSS_COMPILE='riscv64-linux-gnu-' $ARCH='riscv':
+  #compiledb make -j16
+  #compiledb make -j16 -C tests/riscv/virt64/basic
+  make -j16 VERBOSE=y
+  make -j16 VERBOSE=y -C tests/riscv/virt64/basic
+
 INIT := "\
 #!/bin/busybox sh
 /bin/busybox --install -s
@@ -45,6 +56,7 @@ fs: busybox
   #!/usr/bin/bash
   rm -rf initramfs
   rm -f initramfs.cpio.gz
+  rm -f xvisor-initrd.cpio
   mkdir initramfs
   cd initramfs
   mkdir -p {bin,sbin,dev,etc,home,mnt,proc,sys,usr,tmp}
@@ -59,7 +71,31 @@ fs: busybox
   {{INIT}}
   EOF
   chmod +x init
-  find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../initramfs.cpio.gz
+
+[working-directory: 'busybox']
+fs-linux: fs
+  #!/usr/bin/bash
+  cd initramfs
+  find . -print0 | cpio --null --create --verbose --format=newc | gzip -9 > ../initramfs.cpio.gz
+
+XV_DIR := "../../xvisor"
+LINUX_DIR := "../../linux"
+[working-directory: 'busybox']
+fs-xvisor: fs-linux
+  #!/usr/bin/bash
+  cd initramfs
+  mkdir -p {system,images/riscv/virt64}
+  cp {{XV_DIR}}/docs/banner/roman.txt system/banner.txt
+  cp {{XV_DIR}}/docs/logo/xvisor_logo_name.ppm system/logo.ppm
+  dtc -q -I dts -O dtb -o images/riscv/virt64-guest.dtb {{XV_DIR}}/tests/riscv/virt64/virt64-guest.dts
+  cp {{XV_DIR}}/build/tests/riscv/virt64/basic/firmware.bin images/riscv/virt64/firmware.bin
+  cp {{XV_DIR}}/tests/riscv/virt64/linux/nor_flash.list images/riscv/virt64/nor_flash.list
+  cp {{XV_DIR}}/tests/riscv/virt64/linux/cmdlist images/riscv/virt64/cmdlist
+  cp {{XV_DIR}}/tests/riscv/virt64/xscript/one_guest_virt64.xscript boot.xscript
+  cp {{LINUX_DIR}}/build/arch/riscv/boot/Image images/riscv/virt64/Image
+  dtc -q -I dts -O dtb -o images/riscv/virt64/virt64.dtb {{XV_DIR}}/tests/riscv/virt64/linux/virt64.dts
+  cp ../initramfs.cpio.gz images/riscv/virt64/rootfs.img
+  find . -print0 | cpio --null --create --verbose --format=newc > ../xvisor-initrd.cpio
 
 [working-directory: 'linux']
 linux-setup $CROSS_COMPILE='riscv64-linux-gnu-' $ARCH='riscv':
@@ -109,5 +145,18 @@ run-linux:
     -bios opensbi/build/platform/generic/firmware/fw_dynamic.bin \
     -kernel linux/build/arch/riscv/boot/Image \
     -initrd busybox/initramfs.cpio.gz -append "console=ttyS0 init=/init"
+
+XV_CMDS := "\
+vfs mount initrd /; \
+vfs run /boot.xscript; \
+guest kick guest0; \
+vserial bind guest0/uart0; \
+"
+
+run-xvisor:
+  qemu/build/qemu-system-riscv64 -M virt -m 512M -nographic \
+    -bios opensbi/build/platform/generic/firmware/fw_dynamic.bin \
+    -kernel xvisor/build/vmm.bin \
+    -initrd busybox/xvisor-initrd.cpio -append 'vmm.bootcmd="{{XV_CMDS}}"'
 
 #-d int,exec,cpu,mmu,nochain,op,in_asm

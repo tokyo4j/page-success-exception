@@ -12,7 +12,7 @@ git submodule update --init
 just xv6
 just qemu-setup
 just qemu
-just run
+just run-xv6
 ```
 
 ## 出力
@@ -110,3 +110,20 @@ AMD SEV-SNPにおけるRMPと同様、全ての物理メモリページのEnclav
 - `enclave_main()`はフィボナッチ数列を計算し、32番の要素を`fib_result`に保存
 - `enclave_entry()`が`EEXIT`命令を実行し、通常のアプリにジャンプ
 - `fib_result`の内容を出力
+
+### Xvisor起動
+
+```sh
+just xv6
+just qemu-setup
+just qemu
+just linux-setup
+just linux
+just xvisor-setup
+just xvisor
+just opensbi
+just busybox-setup
+just busybox
+just fs-xvisor
+just run-xvisor
+```
