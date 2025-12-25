@@ -114,7 +114,6 @@ AMD SEV-SNPにおけるRMPと同様、全ての物理メモリページのEnclav
 ### Xvisor起動
 
 ```sh
-just xv6
 just qemu-setup
 just qemu
 just linux-setup
@@ -123,7 +122,19 @@ just xvisor-setup
 just xvisor
 just opensbi
 just busybox-setup
-just busybox
 just fs-xvisor
 just run-xvisor
+```
+
+### Linux起動
+
+```sh
+just qemu-setup
+just qemu
+just linux-setup
+just linux
+just opensbi
+just busybox-setup
+just fs-linux
+just run-linux
 ```
