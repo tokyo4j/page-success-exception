@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> Archived in favor of https://github.com/sslab-keio/page-success-exception
+
+---
+
 # Page success例外デモ
 
 - QEMU: https://github.com/tokyo4j/qemu/tree/page-success-exception
